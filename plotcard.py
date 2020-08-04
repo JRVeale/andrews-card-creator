@@ -1,13 +1,16 @@
 import jsonpickle
 
+from plotcard_option import PlotCardOption
+
 
 class PlotCard:
 
-    def __init__(self, title, subtitle, text, options):
+    def __init__(self, id_num, title, subtitle, text, options):
+        self.id = id_num.get()
         self.title = title.get()
         self.subtitle = subtitle.get()
         self.text = text.get("1.0", "end")[:-1]
-        self.options = []
+        self.options = [] # TODO replace plain string with PlotCardOption
         for o in options[1:]:
             self.options.append(o.get())
 
