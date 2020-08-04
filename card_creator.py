@@ -32,16 +32,16 @@ class CardManager:
         self.master.title("Card Creator")
 
         # Create main containers
-        self.graph_frame = tk.Frame(self.master, bg="green")
-        self.details_frame = tk.Frame(self.master, bg="blue")
+        self.graph_frame = tk.Frame(self.master, bg="white")
+        self.details_frame = tk.Frame(self.master, bg="white")
         # Layout main containers
         self.graph_frame.grid(row=0, column=1)
         self.details_frame.grid(row=0, column=0)
 
         # Create details containers
         self.buttons_frame = tk.Frame(self.details_frame, bg="white")
-        self.fields_frame = tk.Frame(self.details_frame, bg="gray")
-        self.options_frame = tk.Frame(self.details_frame, bg="gray2")
+        self.fields_frame = tk.Frame(self.details_frame, bg="white")
+        self.options_frame = tk.Frame(self.details_frame, bg="white")
         # Layout details containers
         self.buttons_frame.grid(row=0, column=0, sticky="W")
         self.fields_frame.grid(row=1, column=0)
