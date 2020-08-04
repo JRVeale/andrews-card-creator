@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog, simpledialog, messagebox
 import jsonpickle
 import os
 from PIL import Image, ImageTk
@@ -64,7 +64,8 @@ class CardManager:
         tk.Label(self.fields_frame, text="Subtitle").grid(row=2)
         tk.Label(self.fields_frame, text="Text").grid(row=3)
         # Create fields
-        self.id = tk.Entry(self.fields_frame, width=107) # TODO make id field uneditable
+        self.id = tk.Entry(self.fields_frame, width=107)
+        self.id.configure(state="readonly")
         self.title = tk.Entry(self.fields_frame, width=107)
         self.subtitle = tk.Entry(self.fields_frame, width=107)
         self.text = tk.Text(self.fields_frame)
@@ -87,14 +88,9 @@ class CardManager:
         self.remove_option_button = tk.Button(self.options_frame, text="-", command=self.remove_option)
 
         self.add_option()   # Does layout and adds first option row
+        self.set_new_id()
 
-        # Put picture in chart
-        # TODO
-        load = Image.open("C:/Users/James/PycharmProjects/andrews-card-creator/Assets/DickButt.jpg")
-        render = ImageTk.PhotoImage(load)
-        img = tk.Label(master=self.graph_frame, image=render)
-        img.image = render  # keep a reference to the image by attaching it to the label, else it'll be garbage collected
-        img.pack()
+        self.redraw_graph()
 
         # Update window
         self.master.mainloop()
@@ -126,7 +122,7 @@ class CardManager:
         # Called upon by pressing remove_option_button
 
         if len(self.options) <= 1:
-            return
+            return -1
 
         self.options_labels[-1].destroy()
         self.options_labels = self.options_labels[:-1]
@@ -138,30 +134,135 @@ class CardManager:
         new_button_row = len(self.options)
         self.add_option_button.grid(row=new_button_row, column=3)
         self.remove_option_button.grid(row=new_button_row - 1, column=3)
+        return 0
 
     def new_card(self):
-        # TODO Clear fields
-        # TODO Generate unique ID (not currently in use in folder) and fill in
-        pass
+        # Empty all the fields
+        self.clear_all()
+
+        # Fill in available id
+        self.set_new_id()
 
     def open_card(self):
-        # TODO create popup window for user to pick ID num to open
-        # TODO fill in fields and options from card
-        pass
+        # Get card to edit
+        desired_id = tk.simpledialog.askinteger("Open Card", "Enter card ID to open for edit",
+                                               parent=self.master, minvalue=0)
+        if desired_id is None:
+            return
+        if desired_id not in self.get_used_ids():
+            tk.messagebox.showerror("Error", "No cardfile with id " + str(desired_id))
+            return
+        for card in self.cards:
+            # Find card for desired_id
+            if card.id == desired_id:
+                # Clear current values
+                self.clear_all()
+
+                # Fill in fields from card
+                self.id.configure(state=tk.NORMAL)
+                self.id.insert(0, str(card.id).zfill(4))
+                self.id.configure(state="readonly")
+
+                self.title.insert(0, card.title)
+                self.subtitle.insert(0, card.subtitle)
+                self.text.insert("1.0", card.text)
+
+                # Fill in options from card
+                num_options = len(card.plotcardoptions)
+                for i in range(0, num_options - 1):
+                    self.add_option()
+                for i in range(0, num_options):
+                    self.options[i].insert(0, card.plotcardoptions[i].text)
+                    self.options_actions[i].insert(0, card.plotcardoptions[i].action_string)
+
+                # Update graph
+                self.redraw_graph()
+                return
 
     def save_card(self):
-        # TODO if cardfile doesn't exist create it, else replace existing (cardfile and card in list)
-        # TODO update graph
-        pass
+        # Create card and add to list
+        new_card = PlotCard(self.id, self.title, self.subtitle, self.text, self.options, self.options_actions)
+        self.cards.append(new_card)
+
+        # Create cardfile and save
+        full_filepath = self.directory + "/Card_" + str(self.id.get().zfill(4)) + ".json"
+        self.card_files.append(full_filepath)
+        print("Saved card " + str(self.id.get()) + " to " + full_filepath)
+        f = open(full_filepath, "w+")
+        f.write(self.cards[-1].json())
+        f.close()
+
+        # Update graph
+        self.redraw_graph()
 
     def delete_card(self):
-        # TODO delete cardfile and remove card from list
-        # TODO update graph
+        # Find index for this id (same for cards and cardfiles lists)
+        for i in range(0, len(self.cards)):
+            # Find card for currently editted if has been saved
+            if self.cards[i].id == int(self.id.get()):
+                self.cards.pop(i)                   # remove from cards list
+                print("Cardfiles are\n" + str(self.card_files))
+                print("Removing " + str(i) + "th card")
+                cardfile = self.card_files.pop(i)   # remove from cardfiles list
+                os.remove(cardfile)                 # Delete cardfile itself
+                break
+
+        # Get ready to make a new card
+        self.new_card()
+
+        # Update graph
+        self.redraw_graph()
+
+    def redraw_graph(self):
+        # Put picture in chart
+        # TODO
+        '''
+        load = Image.open("C:/Users/James/PycharmProjects/andrews-card-creator/Assets/DickButt.jpg")
+        render = ImageTk.PhotoImage(load)
+        img = tk.Label(master=self.graph_frame, image=render)
+        img.image = render  # keep a reference to the image by attaching it to the label, else it gets garbage collected
+        img.pack()
+        '''
         pass
 
-    def generate_json(self):
-        card = PlotCard(self.id, self.title, self.subtitle, self.text, self.options)
-        return card.json()
+    def clear_all(self):
+        self.id.configure(state=tk.NORMAL)
+        self.id.delete(0, tk.END)
+        self.id.configure(state="readonly")
+
+        self.title.delete(0, tk.END)
+        self.subtitle.delete(0, tk.END)
+        self.text.delete("1.0", tk.END)
+
+        while self.remove_option() == 0:
+            pass
+
+        self.options[-1].delete(0, tk.END)
+        self.options_actions[-1].delete(0, tk.END)
+
+    def get_used_ids(self):
+        used_ids = []
+        for card in self.cards:
+            used_ids.append(card.id)
+        return used_ids
+
+    def set_new_id(self):
+        self.id.configure(state=tk.NORMAL)
+        self.id.insert(0, str(self.get_next_id()).zfill(4))
+        self.id.configure(state="readonly")
+
+    def get_next_id(self):
+        used_ids = self.get_used_ids()  # an unordered list of IDs in use
+        num_used_ids = len(used_ids)
+        l = [False] * num_used_ids      # a list of bools as long as the number of IDs in use
+        for i in used_ids:              # if an ID is used and is less than length, set l[ID] to True
+            if i < num_used_ids:
+                l[i] = True
+        # Now the first false is in the position of lowest available unsigned int, if all are true, the answer is N
+        for i in range(0, num_used_ids):
+            if not l[i]:
+                return i
+        return num_used_ids
 
 
 card_manager = CardManager()
