@@ -3,6 +3,8 @@ from tkinter import filedialog, simpledialog, messagebox
 import jsonpickle
 import os
 from PIL import Image, ImageTk
+import pydot
+import re
 
 from plotcard import PlotCard, PlotCardOption
 
@@ -51,7 +53,7 @@ class CardManager:
         self.new_button = tk.Button(self.buttons_frame, text="NEW", command=self.new_card, width=20)
         self.open_button = tk.Button(self.buttons_frame, text="OPEN", command=self.open_card, width=20)
         self.save_button = tk.Button(self.buttons_frame, text="SAVE", command=self.save_card, width=20)
-        self.delete_button = tk.Button(self.buttons_frame, text="DELETE", command=self.delete_card, width=20)
+        self.delete_button = tk.Button(self.buttons_frame, text="DELETE", command=self.delete_card_button_func, width=20)
         # Layout buttons
         self.new_button.grid(row=0, column=0)
         self.open_button.grid(row=0, column=1)
@@ -90,6 +92,7 @@ class CardManager:
         self.add_option()   # Does layout and adds first option row
         self.set_new_id()
 
+        self.image = None
         self.redraw_graph()
 
         # Update window
@@ -146,7 +149,7 @@ class CardManager:
     def open_card(self):
         # Get card to edit
         desired_id = tk.simpledialog.askinteger("Open Card", "Enter card ID to open for edit",
-                                               parent=self.master, minvalue=0)
+                                                parent=self.master, minvalue=0)
         if desired_id is None:
             return
         if desired_id not in self.get_used_ids():
@@ -180,6 +183,9 @@ class CardManager:
                 return
 
     def save_card(self):
+        # Delete old card from list
+        self.delete_card()
+
         # Create card and add to list
         new_card = PlotCard(self.id, self.title, self.subtitle, self.text, self.options, self.options_actions)
         self.cards.append(new_card)
@@ -195,17 +201,8 @@ class CardManager:
         # Update graph
         self.redraw_graph()
 
-    def delete_card(self):
-        # Find index for this id (same for cards and cardfiles lists)
-        for i in range(0, len(self.cards)):
-            # Find card for currently editted if has been saved
-            if self.cards[i].id == int(self.id.get()):
-                self.cards.pop(i)                   # remove from cards list
-                print("Cardfiles are\n" + str(self.card_files))
-                print("Removing " + str(i) + "th card")
-                cardfile = self.card_files.pop(i)   # remove from cardfiles list
-                os.remove(cardfile)                 # Delete cardfile itself
-                break
+    def delete_card_button_func(self):
+        self.delete_card()
 
         # Get ready to make a new card
         self.new_card()
@@ -213,17 +210,56 @@ class CardManager:
         # Update graph
         self.redraw_graph()
 
+    def delete_card(self):
+        # Find index for this id (same for cards and cardfiles lists)
+        for i in range(0, len(self.cards)):
+            # Find card for currently editted if has been saved
+            if self.cards[i].id == int(self.id.get()):
+                self.cards.pop(i)                   # remove from cards list
+                cardfile = self.card_files.pop(i)   # remove from cardfiles list
+                os.remove(cardfile)                 # Delete cardfile itself
+                break
+
     def redraw_graph(self):
-        # Put picture in chart
-        # TODO
-        '''
-        load = Image.open("C:/Users/James/PycharmProjects/andrews-card-creator/Assets/DickButt.jpg")
+        # Create graph
+        graph = pydot.Dot(graph_type="digraph")
+        graph.set_node_defaults(color="lightgray", style="filled", shape="box")
+
+        # Create all the nodes and add them to graph
+        nodes = {}
+        for card in self.cards:
+            if len(card.title) > 20:
+                node_title = card.title[:20] + "..."
+            else:
+                node_title = card.title
+            nodes[card.id] = pydot.Node(str(card.id).zfill(4) + "\n" + node_title)
+            graph.add_node(nodes[card.id])
+
+        # Create all edges and add them to graph
+        for card in self.cards:
+            for o in range(0, len(card.plotcardoptions)):
+                ids = [int(s) for s in re.findall(r"\d+", card.plotcardoptions[o].action_string)]
+                for i in ids:
+                    try:
+                        graph.add_edge(pydot.Edge(nodes[card.id], nodes[i]))
+                    except KeyError:
+                        pass
+
+        # Save image
+        full_filename = self.directory + "/CardGraph.png"
+        graph.write_png(full_filename)
+
+        # Load into graph_frame (deleting previous)
+        for widget in self.graph_frame.winfo_children():
+            widget.destroy()
+        load = Image.open(full_filename)
         render = ImageTk.PhotoImage(load)
         img = tk.Label(master=self.graph_frame, image=render)
-        img.image = render  # keep a reference to the image by attaching it to the label, else it gets garbage collected
+        self.image = render  # keep a reference to the image by attaching it to the label, else it gets garbage collected
         img.pack()
-        '''
-        pass
+
+
+        # TODO Make zoom and pan-able
 
     def clear_all(self):
         self.id.configure(state=tk.NORMAL)
