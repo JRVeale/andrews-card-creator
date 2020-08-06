@@ -1,3 +1,5 @@
+# Editted from https://stackoverflow.com/a/48137257/8807512
+
 # Advanced zoom for images of various types from small to huge up to several GB
 import math
 import warnings
