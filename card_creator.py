@@ -1,5 +1,11 @@
+# Prereqs https://www2.graphviz.org/Packages/stable/windows/10/msbuild/Release/Win32/graphviz-2.38-win32.msi
+# Can be found as the .msi @ https://www2.graphviz.org/Packages/stable/windows/10/msbuild/Release/Win32/
+
+# build with pyinstaller with the command pyinstaller -F card_creator.py
+
 import tkinter as tk
 from tkinter import filedialog, simpledialog, messagebox
+import simplejson   # needed so that is included in exe build
 import jsonpickle
 import os
 from PIL import Image, ImageTk
