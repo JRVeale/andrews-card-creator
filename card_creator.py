@@ -8,7 +8,6 @@ from tkinter import filedialog, simpledialog, messagebox
 import simplejson   # needed so that is included in exe build
 import jsonpickle
 import os
-from PIL import Image, ImageTk
 import pydot
 import re
 
