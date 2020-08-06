@@ -6,7 +6,8 @@ from PIL import Image, ImageTk
 import pydot
 import re
 
-from plotcard import PlotCard, PlotCardOption
+from plotcard import PlotCard
+from CanvasImage import CanvasImage
 
 
 class CardManager:
@@ -38,7 +39,7 @@ class CardManager:
         self.details_frame = tk.Frame(self.master, bg="white")
         # Layout main containers
         self.graph_frame.grid(row=0, column=1)
-        self.details_frame.grid(row=0, column=0)
+        self.details_frame.grid(row=0, column=0, sticky="n")
 
         # Create details containers
         self.buttons_frame = tk.Frame(self.details_frame, bg="white")
@@ -252,12 +253,15 @@ class CardManager:
         # Load into graph_frame (deleting previous)
         for widget in self.graph_frame.winfo_children():
             widget.destroy()
+        '''
         load = Image.open(full_filename)
         render = ImageTk.PhotoImage(load)
         img = tk.Label(master=self.graph_frame, image=render)
         self.image = render  # keep a reference to the image by attaching it to the label, else it gets garbage collected
         img.pack()
-
+        '''
+        canvas = CanvasImage(self.graph_frame, full_filename, width=1000, height=800)
+        canvas.grid(row=0, column=0)
 
         # TODO Make zoom and pan-able
 
