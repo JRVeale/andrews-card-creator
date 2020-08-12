@@ -2,7 +2,11 @@
 IF(X, Y, Z)
 
 # GO TO CARD 7
+GOTO(7)
+# If the option should result in simply go to a card (rather than do other stuff, or ifs etc)
+# then can just write the number as the full action string. i.e
 7
+# This is to make parsing possible cards to go to much simpler for the 
 
 # SET VARIABLE A TO n
 SET(A, n)
