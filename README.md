@@ -9,4 +9,5 @@ Install Instructions
 
 EXE Build Instructions
 
-- build with pyinstaller with the command pyinstaller -F card_creator.py in the Terminal
+- Build with pyinstaller with the command pyinstaller -F card_creator.py in the Terminal
+- Can be found in dist folder within source folder
