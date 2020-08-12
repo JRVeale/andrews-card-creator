@@ -17,6 +17,8 @@ from CanvasImage import CanvasImage
 class CardManager:
 
     def __init__(self):
+        self.version = "1.0"
+
         # Get directory
         self.directory = tk.filedialog.askdirectory(title="Where are your cards?")
 
@@ -36,7 +38,7 @@ class CardManager:
 
         # Create window
         self.master = tk.Toplevel()
-        self.master.title("Card Creator")
+        self.master.title("Card Creator v" + self.version)
 
         # Create main containers
         self.graph_frame = tk.Frame(self.master, bg="white")
