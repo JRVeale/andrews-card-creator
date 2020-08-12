@@ -15,11 +15,7 @@ class PlotCardOption:
 
         # Otherwise, find all the "GOTO(x)"s in the string and pull out the int's from them
         possible_ids = []
-        print("action_string")
-        print(self.action_string)
         all_goto_strings = re.findall(self.goto_format, self.action_string)
-        print("all_goto_strings")
-        print(all_goto_strings)
         if len(all_goto_strings) == 0:
             return []
         for goto_string in all_goto_strings:
@@ -28,8 +24,6 @@ class PlotCardOption:
 
             if self.represents_int(possible_id):
                 possible_ids.append(int(possible_id))
-        print("possible ids")
-        print(possible_ids)
         return possible_ids
 
     @staticmethod

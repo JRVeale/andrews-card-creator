@@ -6,6 +6,7 @@ from plotcard_option import PlotCardOption
 class PlotCard:
 
     def __init__(self, id_num, title, subtitle, text, options, options_actions):
+        self.version = "0.1"
         self.id = int(id_num.get())
         self.title = title.get()
         self.subtitle = subtitle.get()
@@ -16,14 +17,3 @@ class PlotCard:
 
     def json(self):
         return jsonpickle.encode(self, indent=4, separators=(',', ': '))
-
-    #def json(self):
-    #    string = "{\n\t\"title\": \"" + self.title + "\",\n"
-    #    string += "\t\"subtitle\": \"" + self.subtitle + "\",\n"
-    #    string += "\t\"text\": \"" + self.text + "\",\n"
-    #    string += "\t\"options\": [\n"
-    #    for option in self.options:
-    #        string += "\t\t\"" + option + "\",\n"
-    #    string += "\t]\n}"
-    #    print(string)
-    #    return string
