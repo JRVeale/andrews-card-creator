@@ -9,7 +9,6 @@ import simplejson   # needed so that is included in exe build
 import jsonpickle
 import os
 import pydot
-import re
 
 from plotcard import PlotCard
 from CanvasImage import CanvasImage
@@ -243,8 +242,8 @@ class CardManager:
 
         # Create all edges and add them to graph
         for card in self.cards:
-            for o in range(0, len(card.plotcardoptions)):
-                ids = [int(s) for s in re.findall(r"\d+", card.plotcardoptions[o].action_string)]
+            for o in card.plotcardoptions:
+                ids = o.get_possible_destination_ids()
                 for i in ids:
                     try:
                         graph.add_edge(pydot.Edge(nodes[card.id], nodes[i]))
