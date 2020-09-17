@@ -45,7 +45,7 @@ class CardManager:
         self.details_frame = tk.Frame(self.master, bg="white")
         # Layout main containers
         self.graph_frame.grid(row=0, column=1)
-        self.details_frame.grid(row=0, column=0, sticky="n")
+        self.details_frame.grid(row=0, column=0, sticky="nwe")
 
         # Create details containers
         self.buttons_frame = tk.Frame(self.details_frame, bg="white")
@@ -77,7 +77,7 @@ class CardManager:
         self.id.configure(state="readonly")
         self.title = tk.Entry(self.fields_frame, width=107)
         self.subtitle = tk.Entry(self.fields_frame, width=107)
-        self.text = tk.Text(self.fields_frame)
+        self.text = tk.Text(self.fields_frame, wrap="word")
         # Layout fields
         self.id.grid(row=0, column=1)
         self.title.grid(row=1, column=1)
@@ -121,12 +121,12 @@ class CardManager:
         self.options_labels[-1].grid(row=new_button_row, column=0)
 
         # Add a new option
-        self.options.append(tk.Entry(self.options_frame))
-        self.options[-1].grid(row=new_button_row, column=1)
+        self.options.append(tk.Entry(self.options_frame, width=50))
+        self.options[-1].grid(row=new_button_row, column=1, sticky="NESW")
 
         # Add a new option_action
-        self.options_actions.append(tk.Entry(self.options_frame))
-        self.options_actions[-1].grid(row=new_button_row, column=2)
+        self.options_actions.append(tk.Entry(self.options_frame, width=50))
+        self.options_actions[-1].grid(row=new_button_row, column=2, sticky="NESW")
 
     def remove_option(self):
         # Called upon by pressing remove_option_button
