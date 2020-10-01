@@ -17,7 +17,7 @@ from CanvasImage import CanvasImage
 class CardManager:
 
     def __init__(self):
-        self.version = "1.0"
+        self.version = "1.1"
 
         # Get directory
         self.directory = tk.filedialog.askdirectory(title="Where are your cards?")
