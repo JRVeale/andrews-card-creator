@@ -57,15 +57,18 @@ class CardManager:
         self.options_frame.grid(row=2, column=0)
 
         # Create buttons
-        self.new_button = tk.Button(self.buttons_frame, text="NEW", command=self.new_card, width=20)
-        self.open_button = tk.Button(self.buttons_frame, text="OPEN", command=self.open_card, width=20)
-        self.save_button = tk.Button(self.buttons_frame, text="SAVE", command=self.save_card, width=20)
-        self.delete_button = tk.Button(self.buttons_frame, text="DELETE", command=self.delete_card_button_func, width=20)
+        button_w = 18
+        self.new_button = tk.Button(self.buttons_frame, text="NEW", command=self.new_card_button_func, width=button_w)
+        self.open_button = tk.Button(self.buttons_frame, text="OPEN", command=self.open_card_button_func, width=button_w)
+        self.reload_button = tk.Button(self.buttons_frame, text="RELOAD", command=self.reload_button_func, width=button_w)
+        self.save_button = tk.Button(self.buttons_frame, text="SAVE", command=self.save_card, width=button_w)
+        self.delete_button = tk.Button(self.buttons_frame, text="DELETE", command=self.delete_card_button_func, width=button_w)
         # Layout buttons
         self.new_button.grid(row=0, column=0)
         self.open_button.grid(row=0, column=1)
-        self.save_button.grid(row=0, column=2)
-        self.delete_button.grid(row=0, column=3)
+        self.reload_button.grid(row=0, column=2)
+        self.save_button.grid(row=0, column=3)
+        self.delete_button.grid(row=0, column=4)
 
         # Create and layout field labels
         tk.Label(self.fields_frame, text="ID").grid(row=0)
@@ -146,6 +149,12 @@ class CardManager:
         self.remove_option_button.grid(row=new_button_row - 1, column=3)
         return 0
 
+    def new_card_button_func(self):
+        # Save changes currently made
+        self.save_card()
+        # and get ready for new card
+        self.new_card()
+
     def new_card(self):
         # Empty all the fields
         self.clear_all()
@@ -153,10 +162,18 @@ class CardManager:
         # Fill in available id
         self.set_new_id()
 
-    def open_card(self):
-        # Get card to edit
-        desired_id = tk.simpledialog.askinteger("Open Card", "Enter card ID to open for edit",
+    def open_card_button_func(self):
+        # Save changes currently made
+        self.save_card()
+        # and open the chosen card for editing
+        self.open_card(self.get_desired_card_dialog())
+
+    def get_desired_card_dialog(self):
+        return tk.simpledialog.askinteger("Open Card", "Enter card ID to open for edit",
                                                 parent=self.master, minvalue=0)
+
+    def open_card(self, desired_id):
+        # Get card to edit
         if desired_id is None:
             return
         if desired_id not in self.get_used_ids():
@@ -189,6 +206,15 @@ class CardManager:
                 self.redraw_graph()
                 return
 
+    def reload_button_func(self):
+        # Save current card id
+        current_id = int(self.id.get())
+        # Clear all the fields
+        self.clear_all()
+        # Reload card
+        self.open_card(current_id)
+
+
     def save_card(self):
         # Delete old card from list
         self.delete_card()
@@ -212,7 +238,7 @@ class CardManager:
         self.delete_card()
 
         # Get ready to make a new card
-        self.new_card()
+        self.open_card(self.get_used_ids()[-1])
 
         # Update graph
         self.redraw_graph()
