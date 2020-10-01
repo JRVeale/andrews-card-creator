@@ -20,7 +20,6 @@ class PlotCardOption:
             return []
         for goto_string in all_goto_strings:
             possible_id = goto_string[self.goto_format_int_start_index:self.goto_format_int_end_index]
-            print(goto_string + " ---- " + possible_id)
 
             if self.represents_int(possible_id):
                 possible_ids.append(int(possible_id))

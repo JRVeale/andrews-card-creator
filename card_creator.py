@@ -211,8 +211,14 @@ class CardManager:
         current_id = int(self.id.get())
         # Clear all the fields
         self.clear_all()
-        # Reload card
-        self.open_card(current_id)
+
+        if current_id in self.get_used_ids():
+            # Reload card
+            self.open_card(current_id)
+        else:
+            # Have tried to reload a new card (so no actual save yet)
+            # So instead should just ready this new card again
+            self.new_card()
 
 
     def save_card(self):
